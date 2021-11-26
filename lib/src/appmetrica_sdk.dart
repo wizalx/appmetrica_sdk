@@ -191,4 +191,14 @@ class AppmetricaSdk {
     });
     return;
   }
+
+  Future<void> reportEcommerceShowScreen({required String screenName}) async {
+    if (_apiKey == null) {
+      throw 'The API key is not set';
+    }
+    await _channel.invokeMethod<String>('reportEcommerceShowScreen', <String, dynamic>{
+      'screenName': screenName,
+    });
+    return;
+  }
 }

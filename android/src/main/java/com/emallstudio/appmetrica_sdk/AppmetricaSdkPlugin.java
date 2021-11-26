@@ -30,6 +30,7 @@ import com.yandex.metrica.profile.Attribute;
 import com.yandex.metrica.profile.StringAttribute;
 import com.yandex.metrica.profile.UserProfile;
 import com.yandex.metrica.profile.UserProfileUpdate;
+import com.yandex.metrica.ecommerce;
 
 /** AppmetricaSdkPlugin */
 public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
@@ -105,6 +106,9 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
                 break;
             case "reportReferralUrl":
                 handleReportReferralUrl(call, result);
+                break;
+            case "reportEcommerceShowScreen":
+                handleReportEcommerceShowScreen(call, result);
                 break;
             default:
               result.notImplemented();
@@ -339,6 +343,24 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
             final String referral = (String) arguments.get("referral");
             YandexMetrica.reportReferralUrl(referral);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            result.error("Error sets the ID of the user profile", e.getMessage(), null);
+        }
+
+        result.success(null);
+    }
+
+        private void handleReportEcommerceShowScreen(MethodCall call, Result result) {
+        try {
+            Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+            final String screenName = (String) arguments.get("screenName");
+            // Creating a screen object. 
+            ECommerceScreen screen = new ECommerceScreen()
+                .setName(screenName);
+            ECommerceEvent showScreenEvent = ECommerceEvent.showScreenEvent(screen);
+
+            YandexMetrica.reportECommerce(showScreenEvent);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.error("Error sets the ID of the user profile", e.getMessage(), null);

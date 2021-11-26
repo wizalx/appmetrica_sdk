@@ -42,6 +42,8 @@
       [self handleSendEventsBuffer:call result:result];
   } else if ([@"reportReferralUrl" isEqualToString:call.method]) {
       [self handleReportReferralUrl:call result:result];
+  } else if ([@"reportEcommerceShowScreen" isEqualToString:call.method]) {
+      [self handleReportEcommerceShowScreen:call result:result];
   } else {
       result(FlutterMethodNotImplemented);
   }
@@ -237,6 +239,16 @@
     
     [YMMYandexMetrica reportReferralUrl:url];
 
+    result(nil);
+}
+
+/// show screen
+-(void)handleReportEcommerceShowScreen:(FlutterMethodCall*)call result:(FlutterResult)result {
+    NSString* screenName = call.arguments[@"screenName"];
+    YMMECommerceScreen *screen = [[YMMECommerceScreen alloc] initWithName:screenName];
+    
+    [YMMYandexMetrica reportECommerce:[YMMECommerce showScreenEventWithScreen:screen] onFailure:nil];
+    
     result(nil);
 }
 
