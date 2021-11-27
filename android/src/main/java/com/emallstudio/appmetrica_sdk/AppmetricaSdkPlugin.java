@@ -110,6 +110,9 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             case "reportEcommerceShowScreen":
                 handleReportEcommerceShowScreen(call, result);
                 break;
+            case "reportEcommerceAddCart":
+                handleReportEcommerceAddCart(call, result);
+                break;
             default:
               result.notImplemented();
               break;
@@ -351,7 +354,7 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
         result.success(null);
     }
 
-        private void handleReportEcommerceShowScreen(MethodCall call, Result result) {
+    private void handleReportEcommerceShowScreen(MethodCall call, Result result) {
         try {
             Map<String, Object> arguments = (Map<String, Object>) call.arguments;
             final String screenName = (String) arguments.get("screenName");
@@ -363,7 +366,49 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             YandexMetrica.reportECommerce(showScreenEvent);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
-            result.error("Error sets the ID of the user profile", e.getMessage(), null);
+            result.error("Error report of e-commerce show screen", e.getMessage(), null);
+        }
+
+        result.success(null);
+    }
+
+    private void handleReportEcommerceAddCart(MethodCall call, Result result) {
+        try {
+            Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+            final String screenName = (String) arguments.get("screenName");
+            // Creating a screen object. 
+            ECommerceScreen screen = new ECommerceScreen()
+                .setName(screenName);
+
+
+            final String sku = (String) arguments.get("SKU");
+            final String name = (String) arguments.get("name");
+            final String category = (String) arguments.get("category");
+            final double price = (double) arguments.get("price");
+            final String reffer = (String) arguments.get("reffer");
+
+            ECommercePrice originalPrice = new ECommercePrice(new ECommerceAmount(price, "RUB"));
+
+            ECommerceProduct product = new ECommerceProduct(sku)
+                .setOriginalPrice(originalPrice)
+                .setName(name)
+                .setCategoriesPath(Arrays.asList(category));
+
+                ECommerceReferrer referrer = new ECommerceReferrer()
+                    .setType(reffer) // Optional.
+                    .setScreen(screen);
+
+                    // Creating a cartItem object. 
+             ECommerceCartItem addedItems1 = new ECommerceCartItem(product, originalPrice, 1.0)
+                .setReferrer(referrer); // Optional.
+            ECommerceEvent addCartItemEvent = ECommerceEvent.addCartItemEvent(addedItems1);
+
+            ECommerceEvent showScreenEvent = ECommerceEvent.showScreenEvent(addCartItemEvent);
+
+            YandexMetrica.reportECommerce(showScreenEvent);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            result.error("Error report of add cart", e.getMessage(), null);
         }
 
         result.success(null);
