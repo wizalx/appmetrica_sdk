@@ -284,9 +284,9 @@
     NSDecimalNumber *quantity = [NSDecimalNumber decimalNumberWithString:@"1"];
     
     YMMECommerceCartItem *addedItems = [[YMMECommerceCartItem alloc] initWithProduct:product
-                                                                          referrer:referrer
-                                                                          quantity:quantity
-                                                                           revenue:originalPrice];
+                                                                        quantity:quantity
+                                                                        revenue:originalPrice
+                                                                        referrer:referrer];
     
     [YMMYandexMetrica reportECommerce:[YMMECommerce removeCartItemEventWithItem:addedItems] onFailure:nil];
     
