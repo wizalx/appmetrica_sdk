@@ -13,6 +13,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.util.SparseArray;
+
+import java.util.Arrays;
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -30,7 +32,14 @@ import com.yandex.metrica.profile.Attribute;
 import com.yandex.metrica.profile.StringAttribute;
 import com.yandex.metrica.profile.UserProfile;
 import com.yandex.metrica.profile.UserProfileUpdate;
-import com.yandex.metrica.ecommerce;
+import com.yandex.metrica.ecommerce.ECommerceScreen;
+import com.yandex.metrica.ecommerce.ECommerceEvent;
+import com.yandex.metrica.ecommerce.ECommerceAmount;
+import com.yandex.metrica.ecommerce.ECommercePrice;
+import com.yandex.metrica.ecommerce.ECommerceProduct;
+import com.yandex.metrica.ecommerce.ECommerceCartItem;
+import com.yandex.metrica.ecommerce.ECommerceReferrer;
+
 
 /** AppmetricaSdkPlugin */
 public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
@@ -403,9 +412,7 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
                 .setReferrer(referrer); // Optional.
             ECommerceEvent addCartItemEvent = ECommerceEvent.addCartItemEvent(addedItems1);
 
-            ECommerceEvent showScreenEvent = ECommerceEvent.showScreenEvent(addCartItemEvent);
-
-            YandexMetrica.reportECommerce(showScreenEvent);
+            YandexMetrica.reportECommerce(addCartItemEvent);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.error("Error report of add cart", e.getMessage(), null);
