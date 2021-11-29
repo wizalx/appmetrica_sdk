@@ -46,6 +46,8 @@
       [self handleReportEcommerceShowScreen:call result:result];
   } else if ([@"reportEcommerceAddCart" isEqualToString:call.method]) {
       [self handleReportEcommerceAddCart:call result:result];
+  } else if ([@"showProductDetailsEventWithProduct" isEqualToString:call.method]) {
+      [self handleShowProductDetailsEventWithProduct:call result:result];
   } else {
       result(FlutterMethodNotImplemented);
   }
@@ -289,6 +291,35 @@
                                                                         referrer:referrer];
     
     [YMMYandexMetrica reportECommerce:[YMMECommerce addCartItemEvent:addedItems] onFailure:nil];
+    
+    result(nil);
+}
+
+-(void)handleShowProductDetailsEventWithProduct:(FlutterMethodCall*)call result:(FlutterResult)result {
+    
+    NSString* screenName = call.arguments[@"screenName"];
+    YMMECommerceScreen *screen = [[YMMECommerceScreen alloc] initWithName:screenName];
+    
+    NSString* SKU = call.arguments[@"SKU"];
+    NSString* name = call.arguments[@"name"];
+    NSString* category = call.arguments[@"category"];
+    double price = [call.arguments[@"price"] doubleValue];
+    NSString* reffer = call.arguments[@"reffer"];
+    
+    YMMECommerceAmount *actualFiat =
+            [[YMMECommerceAmount alloc] initWithUnit:@"RUB" value:[[NSDecimalNumber alloc] initWithDouble:price]];
+    
+    YMMECommercePrice *originalPrice = [[YMMECommercePrice alloc] initWithFiat:actualFiat];
+    
+    YMMECommerceProduct *product = [[YMMECommerceProduct alloc] initWithSKU:SKU
+                                                                       name:name
+                                                         categoryComponents:@[category]
+                                                                    payload:@{}
+                                                                actualPrice:originalPrice
+                                                              originalPrice:originalPrice
+                                                                 promoCodes:@[]];
+    
+    [YMMYandexMetrica reportECommerce:[YMMECommerce showProductCardEventWithProduct:product screen:screen] onFailure:nil];
     
     result(nil);
 }

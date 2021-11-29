@@ -223,4 +223,24 @@ class AppmetricaSdk {
     });
     return;
   }
+
+  Future<void> reportEcommerceShowProduct({
+    required String screenName,
+    required String SKU,
+    required String productName,
+    required String category,
+    required double price
+  }) async {
+    if (_apiKey == null) {
+      throw 'The API key is not set';
+    }
+    await _channel.invokeMethod<String>('showProductDetailsEventWithProduct', <String, dynamic>{
+      'screenName': screenName,
+      'SKU' :SKU,
+      'productName' : productName,
+      'category' : category,
+      'price' : price,
+    });
+    return;
+  }
 }

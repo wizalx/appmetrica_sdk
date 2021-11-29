@@ -122,6 +122,9 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             case "reportEcommerceAddCart":
                 handleReportEcommerceAddCart(call, result);
                 break;
+            case "showProductDetailsEventWithProduct":
+                handleShowProductDetailsEventWithProduct(call, result);
+                break;
             default:
               result.notImplemented();
               break;
@@ -413,6 +416,39 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             ECommerceEvent addCartItemEvent = ECommerceEvent.addCartItemEvent(addedItems1);
 
             YandexMetrica.reportECommerce(addCartItemEvent);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            result.error("Error report of add cart", e.getMessage(), null);
+        }
+
+        result.success(null);
+    }
+
+    private void handleShowProductDetailsEventWithProduct(MethodCall call, Result result) {
+        try {
+            Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+            final String screenName = (String) arguments.get("screenName");
+            // Creating a screen object. 
+            ECommerceScreen screen = new ECommerceScreen()
+                .setName(screenName);
+
+
+            final String sku = (String) arguments.get("SKU");
+            final String name = (String) arguments.get("name");
+            final String category = (String) arguments.get("category");
+            final double price = (double) arguments.get("price");
+            final String reffer = (String) arguments.get("reffer");
+
+            ECommercePrice originalPrice = new ECommercePrice(new ECommerceAmount(price, "RUB"));
+
+            ECommerceProduct product = new ECommerceProduct(sku)
+                .setOriginalPrice(originalPrice)
+                .setName(name)
+                .setCategoriesPath(Arrays.asList(category));
+
+                ECommerceEvent showProductCardEvent = ECommerceEvent.showProductCardEvent(product, screen);
+
+            YandexMetrica.reportECommerce(showProductCardEvent);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.error("Error report of add cart", e.getMessage(), null);
