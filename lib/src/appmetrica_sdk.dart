@@ -224,6 +224,28 @@ class AppmetricaSdk {
     return;
   }
 
+  Future<void> reportEcommerceRemoveCart({
+    required String screenName,
+    required String SKU,
+    required String productName,
+    required String category,
+    required double price,
+    required String reffer
+  }) async {
+    if (_apiKey == null) {
+      throw 'The API key is not set';
+    }
+    await _channel.invokeMethod<String>('reportEcommerceRemoveCart', <String, dynamic>{
+      'screenName': screenName,
+      'SKU' :SKU,
+      'productName' : productName,
+      'category' : category,
+      'price' : price,
+      'reffer' : reffer,
+    });
+    return;
+  }
+
   Future<void> reportEcommerceShowProduct({
     required String screenName,
     required String SKU,
