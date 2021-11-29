@@ -290,7 +290,7 @@
                                                                         revenue:originalPrice
                                                                         referrer:referrer];
     
-    [YMMYandexMetrica reportECommerce:[YMMECommerce addCartItemEvent:addedItems] onFailure:nil];
+    [YMMYandexMetrica reportECommerce:[YMMECommerce addCartItemEventWithItem:addedItems] onFailure:nil];
     
     result(nil);
 }
