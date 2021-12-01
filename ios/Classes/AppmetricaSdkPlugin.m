@@ -52,6 +52,8 @@
       [self handleReportEcommerceRemoveCart:call result:result];
   } else if ([@"beginCheckoutEventWithOrder" isEqualToString:call.method]) {
       [self handleBeginCheckoutEventWithOrder:call result:result];
+  }  else if ([@"purchaseEventWithOrder" isEqualToString:call.method]) {
+      [self handlePurchaseEventWithOrder:call result:result];
   }  else {
       result(FlutterMethodNotImplemented);
   }
@@ -416,6 +418,60 @@
                                                                      payload:@{}];
     
     [YMMYandexMetrica reportECommerce:[YMMECommerce beginCheckoutEventWithOrder:order] onFailure:nil];
+    
+    result(nil);
+}
+
+-(void)handlePurchaseEventWithOrder::(FlutterMethodCall*)call result:(FlutterResult)result {
+    
+    NSString* screenName = call.arguments[@"screenName"];
+    YMMECommerceScreen *screen = [[YMMECommerceScreen alloc] initWithName:screenName];
+    
+    NSArray* productItems = call.arguments[@"products"];
+    NSMutableArray<YMMECommerceCartItem *>* products = [[NSMutableArray alloc] init];
+    
+    NSDecimalNumber *quantity = [NSDecimalNumber decimalNumberWithString:@"1"];
+    
+    NSString* orderId = call.arguments[@"orderId"];
+    
+    for (NSDictionary* item in productItems) {
+        NSString* SKU = item[@"SKU"];
+        NSString* name = item[@"name"];
+        NSString* category = item[@"category"];
+        double price = [item[@"price"] doubleValue];
+        NSString* reffer = item[@"reffer"];
+        
+        YMMECommerceAmount *actualFiat =
+                [[YMMECommerceAmount alloc] initWithUnit:@"RUB" value:[[NSDecimalNumber alloc] initWithDouble:price]];
+        
+        YMMECommercePrice *originalPrice = [[YMMECommercePrice alloc] initWithFiat:actualFiat];
+        
+        YMMECommerceProduct *product = [[YMMECommerceProduct alloc] initWithSKU:SKU
+                                                                           name:name
+                                                             categoryComponents:@[category]
+                                                                        payload:@{}
+                                                                    actualPrice:originalPrice
+                                                                  originalPrice:originalPrice
+                                                                     promoCodes:@[]];
+        
+        YMMECommerceReferrer *referrer = [[YMMECommerceReferrer alloc] initWithType:reffer
+                                                                         identifier:@""
+                                                                             screen:screen];
+        
+        YMMECommerceCartItem *addedItem = [[YMMECommerceCartItem alloc] initWithProduct:product
+                                                                            quantity:quantity
+                                                                            revenue:originalPrice
+                                                                            referrer:referrer];
+        
+        [products addObject:addedItem];
+    }
+    
+    
+    YMMECommerceOrder *order = [[YMMECommerceOrder alloc] initWithIdentifier:orderId
+                                                                   cartItems:products
+                                                                     payload:@{}];
+    
+    [YMMYandexMetrica reportECommerce:[YMMECommerce purchaseEventWithOrder:order] onFailure:nil];
     
     result(nil);
 }

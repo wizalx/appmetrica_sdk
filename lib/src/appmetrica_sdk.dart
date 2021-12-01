@@ -280,6 +280,30 @@ class AppmetricaSdk {
     });
     return;
   }
+
+  Future<void> reportEcommercePurchaseOrder({
+    required String screenName,
+    required String orderId,
+    required List<AppMetricaProduct> products
+  }) async {
+    if (_apiKey == null) {
+      throw 'The API key is not set';
+    }
+
+    List<Map<String, dynamic>> mapProducts = List.empty(growable: true);
+
+    for (AppMetricaProduct product in products)
+    {
+      mapProducts.add(product.toMap());
+    }
+
+    await _channel.invokeMethod<String>('purchaseEventWithOrder', <String, dynamic>{
+      'screenName' : screenName,
+      'products' : mapProducts,
+      'orderId' : orderId
+    });
+    return;
+  }
 }
 
 class AppMetricaProduct
