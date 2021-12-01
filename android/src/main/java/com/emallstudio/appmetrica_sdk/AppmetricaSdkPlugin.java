@@ -14,6 +14,7 @@ import android.content.Intent;
 
 import android.util.SparseArray;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import io.flutter.view.FlutterView;
 
 import com.yandex.metrica.YandexMetrica;
 import com.yandex.metrica.YandexMetricaConfig;
+import com.yandex.metrica.ecommerce.ECommerceOrder;
 import com.yandex.metrica.profile.Attribute;
 import com.yandex.metrica.profile.StringAttribute;
 import com.yandex.metrica.profile.UserProfile;
@@ -480,7 +482,6 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
             final String name = (String) arguments.get("name");
             final String category = (String) arguments.get("category");
             final double price = (double) arguments.get("price");
-            final String reffer = (String) arguments.get("reffer");
 
             ECommercePrice originalPrice = new ECommercePrice(new ECommerceAmount(price, "RUB"));
 
@@ -492,6 +493,56 @@ public class AppmetricaSdkPlugin implements MethodCallHandler, FlutterPlugin {
                 ECommerceEvent showProductCardEvent = ECommerceEvent.showProductCardEvent(product, screen);
 
             YandexMetrica.reportECommerce(showProductCardEvent);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+            result.error("Error report of add cart", e.getMessage(), null);
+        }
+
+        result.success(null);
+    }
+
+    private void handleBeginCheckoutEventWithOrder(MethodCall call, Result result) {
+        try {
+            Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+            final String screenName = (String) arguments.get("screenName");
+            // Creating a screen object.
+            ECommerceScreen screen = new ECommerceScreen()
+                    .setName(screenName);
+
+            ArrayList<Map<String, Object>> productItems = (ArrayList<Map<String, Object>>) arguments.get("products");
+            ArrayList<ECommerceCartItem> products = new ArrayList<ECommerceCartItem>();
+
+            final String orderId = (String) arguments.get("orderId");
+
+            for (Map<String, Object> item : productItems)
+            {
+                final String sku = (String) item.get("SKU");
+                final String name = (String) item.get("name");
+                final String category = (String) item.get("category");
+                final double price = (double) item.get("price");
+                final String reffer = (String) item.get("reffer");
+
+                ECommercePrice originalPrice = new ECommercePrice(new ECommerceAmount(price, "RUB"));
+
+                ECommerceProduct product = new ECommerceProduct(sku)
+                        .setOriginalPrice(originalPrice)
+                        .setName(name)
+                        .setCategoriesPath(Arrays.asList(category));
+
+                ECommerceReferrer referrer = new ECommerceReferrer()
+                        .setType(reffer) // Optional.
+                        .setScreen(screen);
+
+                ECommerceCartItem addedItem = new ECommerceCartItem(product, originalPrice, 1.0)
+                        .setReferrer(referrer);
+
+                products.add(addedItem);
+            }
+
+            ECommerceOrder order = new ECommerceOrder(orderId, products);
+            ECommerceEvent beginCheckoutEvent = ECommerceEvent.beginCheckoutEvent(order);
+            
+            YandexMetrica.reportECommerce(beginCheckoutEvent);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.error("Error report of add cart", e.getMessage(), null);

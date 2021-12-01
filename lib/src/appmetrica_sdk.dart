@@ -204,10 +204,7 @@ class AppmetricaSdk {
 
   Future<void> reportEcommerceAddCart({
     required String screenName,
-    required String SKU,
-    required String productName,
-    required String category,
-    required double price,
+    required AppMetricaProduct product,
     required String reffer
   }) async {
     if (_apiKey == null) {
@@ -215,10 +212,10 @@ class AppmetricaSdk {
     }
     await _channel.invokeMethod<String>('reportEcommerceAddCart', <String, dynamic>{
       'screenName': screenName,
-      'SKU' :SKU,
-      'productName' : productName,
-      'category' : category,
-      'price' : price,
+      'SKU' : product.SKU,
+      'productName' : product.productName,
+      'category' : product.category,
+      'price' : product.price,
       'reffer' : reffer,
     });
     return;
@@ -226,10 +223,7 @@ class AppmetricaSdk {
 
   Future<void> reportEcommerceRemoveCart({
     required String screenName,
-    required String SKU,
-    required String productName,
-    required String category,
-    required double price,
+    required AppMetricaProduct product,
     required String reffer
   }) async {
     if (_apiKey == null) {
@@ -237,10 +231,10 @@ class AppmetricaSdk {
     }
     await _channel.invokeMethod<String>('reportEcommerceRemoveCart', <String, dynamic>{
       'screenName': screenName,
-      'SKU' :SKU,
-      'productName' : productName,
-      'category' : category,
-      'price' : price,
+      'SKU' : product.SKU,
+      'productName' : product.productName,
+      'category' : product.category,
+      'price' : product.price,
       'reffer' : reffer,
     });
     return;
@@ -248,21 +242,68 @@ class AppmetricaSdk {
 
   Future<void> reportEcommerceShowProduct({
     required String screenName,
-    required String SKU,
-    required String productName,
-    required String category,
-    required double price
+    required AppMetricaProduct product
   }) async {
     if (_apiKey == null) {
       throw 'The API key is not set';
     }
     await _channel.invokeMethod<String>('showProductDetailsEventWithProduct', <String, dynamic>{
       'screenName': screenName,
-      'SKU' :SKU,
-      'productName' : productName,
-      'category' : category,
-      'price' : price,
+      'SKU' : product.SKU,
+      'productName' : product.productName,
+      'category' : product.category,
+      'price' : product.price,
     });
     return;
   }
+
+  Future<void> reportEcommerceBeginOrder({
+    required String screenName,
+    required String orderId,
+    required List<AppMetricaProduct> products
+  }) async {
+    if (_apiKey == null) {
+      throw 'The API key is not set';
+    }
+
+    List<Map<String, dynamic>> mapProducts = List.empty(growable: true);
+
+    for (AppMetricaProduct product in products)
+      {
+        mapProducts.add(product.toMap());
+      }
+
+    await _channel.invokeMethod<String>('beginCheckoutEventWithOrder', <String, dynamic>{
+      'screenName' : screenName,
+      'products' : mapProducts,
+      'orderId' : orderId
+    });
+    return;
+  }
+}
+
+class AppMetricaProduct
+{
+  AppMetricaProduct({
+    this.SKU = '',
+    this.productName = '',
+    this.category = '',
+    this.price = 0.0
+  });
+
+  final String SKU;
+  final String productName;
+  final String category;
+  final double price;
+
+  Map<String, dynamic> toMap()
+  {
+    return {
+      'SKU' : this.SKU,
+      'productName' : this.productName,
+      'category' : this.category,
+      'price' : this.price,
+    };
+  }
+
 }
